@@ -4,12 +4,19 @@
 #include <stdlib.h>
 #include <thread>
 #include <vector>
+#include <assert.h>
+#include <windows.h>
+#include <algorithm>
+#include <map>
+#include <mutex>
 
 using std::cout;
 using std::endl;
 
 const size_t MAX_BYTES = 64 * 1024; //thread cache申请的最大内存
-const size_t NLISTS = MAX_BYTES/8;//自由链表中有这么多个自由链表
+const size_t NLISTS = 184;//自由链表中有这么多个自由链表
+const size_t NPAGES = 129;//PageCache的最大页
+const size_t PAGESHIFT = 12;//2的12次方(4096=4k=1页)
 
 
 inline static void*& NEXT_OBJ(void* obj)//获取当前对象的下一个对象
@@ -27,9 +34,13 @@ public:
 		_size += n;
 	}
 
-	void PopRange()
+	void* PopRange()
 	{
+		_size = 0;
+		void* list = _list;
+		_list = nullptr;
 
+		return list;
 	}
 
 	void Push(void* obj)//插入一个对象
@@ -54,24 +65,120 @@ public:
 	{
 		return _list == nullptr;
 	}
+
+	size_t Size()
+	{
+		return _size;
+	}
+
+	size_t MaxSize()
+	{
+		return _maxsize;
+	}
+
+	void SetMaxSize(size_t maxsize)
+	{
+		_maxsize = maxsize;
+	}
+
 private:
 	void* _list=nullptr;//对象里面有一个指针，指向后面的对象块
 	size_t _size=0;//记录自由链表里面有多少个对象
+	size_t _maxsize = 1;
 
 };
 
 class Size
 {
+	//整体把内碎片浪费率控制在%12左右
+	/* [1,128]                 8byte对齐     freelist[0,16) 128/8=16
+	 [129,1024]              16byte对齐      freelist[16,72) (1024-129)/16=56
+    [1025,8*1024]            128byte对齐     freelist[72,128) (8*1024-1025)/128=56
+	[8*1024+1,64*1024]       1024byte对齐    freelist[72,184)*/ 
+
 public:
 	inline static size_t Index(size_t size)//利用一个size计算，这个size在自由链表的哪个位置
 	{	
-		return _Index(size, 3);
+		//return _Index(size, 3);
+
+		assert(size <= MAX_BYTES);
+		//每个区间的链表
+		static int group_array[4] = { 16, 56, 56, 56 };
+
+		if (size <= 128)
+		{
+			return _Index(size, 3);//以8字节对齐
+		}
+		else if (size <= 1024)
+		{
+			return _Index(size - 128, 4) + group_array[0];//以16字节对齐
+		}
+		else if (size <= 8192)
+		{
+			return _Index(size - 1024, 7) + group_array[0] +group_array[1];//以128字节对齐
+		}
+		else //(size<= 65536)
+		{
+			return _Index(size - 8 * 1024, 10) + group_array[0] + group_array[1] + group_array[2];//以1024字节对齐
+		}
 	}
 
-	inline static size_t Roundup(size_t size)//对齐到8字节的整数倍
+	//对齐大小的计算
+	static inline size_t Roundup(size_t bytes)
 	{
-		return _Roundup(size, 3);//这里之所以要封装对齐数，是因为考虑到对齐数越小，内存碎片问题越轻
+		assert(bytes <=MAX_BYTES);
+		if (bytes <= 128)
+		{
+			return _Roundup(bytes, 3);//8字节对齐
+		}
+		else if (bytes <= 1024)
+		{
+			return _Roundup(bytes, 4);//16字节对齐
+		}
+		else if (bytes <= 8192)
+		{
+			return _Roundup(bytes, 7);//128字节对齐
+		}
+		else // (bytes<=65536)
+		{
+			return _Roundup(bytes, 10);//1024字节对齐
+		}
 	}
+	//判断一次从中心缓存拿多少个对象，小对象，就多拿一点；大对象，就少拿一点
+	static size_t NumMoveSize(size_t size)
+	{
+		if (size == 0)
+			return 0;
+
+		int num = (int)(MAX_BYTES / size);
+		if (num < 2)
+		{
+			num = 2;
+		}
+		if (num>512)
+		{
+			num = 512;
+		}
+		return num;
+	}
+
+	//计算一次向PageCache获取多少页
+	static size_t NumMovePage(size_t size)
+	{
+		size_t num = NumMoveSize(size);
+		size_t npage = num*size;//一次批量移动的字节数
+		npage >>= PAGESHIFT;//向下取整
+		if (npage == 0)
+		{
+			npage = 1;
+		}
+		return npage;
+	}
+
+	//inline static size_t Roundup(size_t size)//对齐到8字节的整数倍
+	//{
+	//	return _Roundup(size, 3);//这里之所以要封装对齐数，是因为考虑到对齐数越小，内存碎片问题越轻
+	//}
 private:
 	inline static size_t _Index(size_t size, size_t align)//利用一个size计算，这个size在自由链表的哪个位置
 	{
@@ -86,7 +193,7 @@ private:
 
 		//return (size+7)&~7;
 		size_t _align = 1 << align;
-		return (size + _align - 1)&~_align - 1;//size+7再按位与上7取反，刚好每次都把低三位置为0，就可以达到每次都对齐到8的整数倍处
+		return (size + (_align - 1))&~(_align - 1);//size+7再按位与上7取反，刚好每次都把低三位置为0，就可以达到每次都对齐到8的整数倍处
 	}
 };
 
@@ -94,8 +201,8 @@ typedef size_t PageID;
 
 struct Span//公有的，给别人访问的一般就不用设计成class了
 {
-	PageID _pageid;//页号
-	size_t _npage;//页数
+	PageID _pageid=0;//页号
+	size_t _npage=0;//页数
 	
 	Span* _next = nullptr;
 	Span* _prev = nullptr;
@@ -137,14 +244,25 @@ public:
 		Insert(Begin(), newspan);
 	}
 
-	void PopBack()
+	Span* PopBack()
 	{
-		Erase(_head->_prev);
+		Span* span = _head->_prev;
+		Erase(span);
+
+		return span;
 	}
 
-	void PopFront()
+	Span* PopFront()
 	{
-		Erase(_head->_next);
+		Span* span = _head->_next;
+		Erase(span);
+
+		return span;
+	}
+
+	bool Empty()
+	{
+		return _head->_next == _head;
 	}
 
 	void Insert(Span* cur, Span* newspan)//在cur的前面插入一个newspan
@@ -167,6 +285,15 @@ public:
 		next->_prev = prev;
 	}
 
+	void Lock()
+	{
+		_mutex.lock();
+	}
+	void Unlock()
+	{
+		_mutex.unlock();
+	}
+
 	~SpanList()
 	{
 		Span* cur = _head->_next;
@@ -185,4 +312,5 @@ public:
 
 private:
 	Span* _head;
+	std::mutex _mutex;
 };

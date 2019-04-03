@@ -1,3 +1,4 @@
+#include "Common.h"
 #include "CentralCache.h"
 #include "PageCache.h"
 
@@ -20,8 +21,8 @@ Span* CentralCache::GetOneSpan(SpanList& spanlist, size_t byte_size)
 		}			
 	}
 
-	//走到这里，表示span是空的
-	Span* newspan = PageCache::GetInstance()->NewSpan(1);
+
+	//测试打桩
 	//Span* newspan = new Span;
 	//newspan->objsize = 16;
 	//void* ptr = malloc(16 * 8);
@@ -38,20 +39,38 @@ Span* CentralCache::GetOneSpan(SpanList& spanlist, size_t byte_size)
 	//NEXT_OBJ(cur) = nullptr;
 	//newspan->_list = ptr;
 
+
+	//走到这里，表示span是空的
+	Span* newspan = PageCache::GetInstance()->NewSpan(Size::NumMovePage(byte_size));
+
+	//把span页切分成一个一个的对象，并链接起来
+	char* cur = (char*)(newspan->_pageid << PAGESHIFT);
+	char* end = cur + (newspan->_npage<< PAGESHIFT);
+
+	newspan->_list = cur;
+	newspan->objsize = byte_size;
+	while (cur + byte_size < end)
+	{
+		char* next = cur + byte_size;
+		NEXT_OBJ(cur) = next;
+		cur = next;
+	}
+	NEXT_OBJ(cur) = nullptr;
+	
 	//把span插入到当前这个链表中
 	spanlist.PushFront(newspan);
-
 	return newspan;
-
 }
 
 //从中心缓存获取一定数量的对象返回给thread cache
 size_t CentralCache::FetchRangeObj(void*& start, void*& end, size_t n, size_t byte_size)
 {
-	//加锁
 
 	size_t index = Size::Index(byte_size);//计算所给大小对应哪一层的spanlist
 	SpanList& spanlist = _spanlist[index];
+
+	//加锁
+	spanlist.Lock();
 	Span* span = GetOneSpan(spanlist, byte_size);
 
 	//从span中获取一定范围内的对象
@@ -71,12 +90,42 @@ size_t CentralCache::FetchRangeObj(void*& start, void*& end, size_t n, size_t by
 	span->_list = cur;//拿走对象后，让span的_list指向新的第一个对象
 	span->usecount += batchsize;
 	
-	if (span->_list == nullptr)//如果span为空，就把它尾插到最后，保持非空的span在前面
+	//如果span为空，就把它尾插到最后，保持非空的span在前面
+	if (span->_list == nullptr)
 	{
 		spanlist.Erase(span);//只是移除，不是彻底删除
 		spanlist.PushBack(span);
 	}
-
+	spanlist.Unlock();
 	return batchsize;
 
+}
+
+//将一定数量的对象释放到span跨度
+void CentralCache::ReleaseListToSpans(void* start, size_t size)
+{
+	
+	size_t index = Size::Index(size);
+	SpanList& spanlist = _spanlist[index];
+	while (start)
+	{
+		void* next = NEXT_OBJ(start);
+		//加锁
+		spanlist.Lock();
+		Span* span = PageCache::GetInstance()->MapObjectToSpan(start);
+
+		//找到对应的span之后，将批量对象挂回span，进行头插即可
+		NEXT_OBJ(start) = span->_list;
+		span->_list = start;
+
+		//当一个span的对象全部释放回来时，将span还给pagecache，并且进行页合并
+		if (--span->usecount == 0)
+		{
+			spanlist.Erase(span);
+			PageCache::GetInstance()->ReleaseSpanToPageCache(span);
+			
+		}
+		spanlist.Unlock();
+		start = next;
+	}
 }

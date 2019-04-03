@@ -1,19 +1,27 @@
+#include "Common.h"
 #include "ThreadCache.h"
 #include "CentralCache.h"
+
 
 //从中心缓存获取对象
 void* ThreadCache::FetchFromCentralCache(size_t index, size_t size)
 {
 	//从中心缓存获取批量的对象
-	size_t numtomove = 5;
+	FreeList* freelist = &_FreeList[index];
+	size_t maxsize = freelist->MaxSize();
+	size_t numtomove =min( Size::NumMoveSize(size),maxsize);
 	void* start = nullptr;
 	void* end = nullptr;
 	size_t batchsize = CentralCache::GetInstance()->FetchRangeObj(start, end, numtomove, size);//向中心cache申请批量的内存，并返回实际拿到的对象个数
 	
 	if (batchsize > 1)
 	{
-		FreeList* freelist = &_FreeList[index];
 		freelist->PushRange(NEXT_OBJ(start), end, batchsize - 1);//把剩下的(batchsize-1)个对象挂回到自由链表
+	}
+
+	if (batchsize >= freelist->MaxSize())
+	{
+		freelist->SetMaxSize(maxsize + 1);
 	}
 
 	return start;
@@ -43,13 +51,17 @@ void ThreadCache::Deallocate(void* ptr, size_t size)
 	FreeList* freelist = &_FreeList[index];
 	freelist->Push(ptr);
 
-	//满足条件，释放回中心缓存
-
+	//满足条件(释放回一个批量的内存)，释放回中心缓存
+	if (freelist->Size() >= freelist->MaxSize())
+	{
+		//ListTooLong(freelist, size);
+	}
 
 }
 
 //释放对象时，如果链表过长，则对象将放回到中心缓存
 void ThreadCache::ListTooLong(FreeList* list, size_t size)
 {
-
+	void* start = list->PopRange();
+	CentralCache::GetInstance()->ReleaseListToSpans(start, size);
 }
