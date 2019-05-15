@@ -1,0 +1,3 @@
+/home/yhx/code/Gobang/game/client/build/CMakeFiles/rebuild_cache.dir
+/home/yhx/code/Gobang/game/client/build/CMakeFiles/edit_cache.dir
+/home/yhx/code/Gobang/game/client/build/CMakeFiles/game_client.dir
