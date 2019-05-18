@@ -112,7 +112,7 @@ int CheckReady(string &ip,int &port,uint32_t &id)
 
 bool Match(string &ip,int &port,uint32_t &id)
 {
-    PushMatchPool(ip,port,id);//首先把用户id放入匹配池
+    PushMatchPool(ip,port,id);//把用户id放入匹配池
     while(1)
     {
         int ret=CheckReady(ip,port,id);//检测用户的状态
