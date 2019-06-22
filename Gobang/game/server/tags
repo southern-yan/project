@@ -31,6 +31,7 @@ ARCHITECTURE_ID	build/CMakeFiles/3.9.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	427;
 ARCHITECTURE_ID	build/CMakeFiles/3.9.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	430;"	d	file:
 ARCHITECTURE_ID	build/CMakeFiles/3.9.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	434;"	d	file:
 BLACK	Room.hpp	8;"	d
+Board	Room.hpp	/^        void Board(string &_board)$/;"	f	class:Room
 CMAKE_BINARY_DIR	build/Makefile	/^CMAKE_BINARY_DIR = \/home\/yhx\/code\/Gobang\/game\/server\/build$/;"	m
 CMAKE_COMMAND	build/Makefile	/^CMAKE_COMMAND = \/usr\/local\/bin\/cmake$/;"	m
 CMAKE_SOURCE_DIR	build/Makefile	/^CMAKE_SOURCE_DIR = \/home\/yhx\/code\/Gobang\/game\/server$/;"	m
@@ -264,15 +265,23 @@ C_DIALECT	build/CMakeFiles/3.9.2/CompilerIdC/CMakeCCompilerId.c	524;"	d	file:
 C_DIALECT	build/CMakeFiles/3.9.2/CompilerIdC/CMakeCCompilerId.c	527;"	d	file:
 C_DIALECT	build/CMakeFiles/3.9.2/CompilerIdC/CMakeCCompilerId.c	529;"	d	file:
 C_DIALECT	build/CMakeFiles/3.9.2/CompilerIdC/CMakeCCompilerId.c	531;"	d	file:
-CreateRoom	RoomManager.hpp	/^        void CreateRoom(uint32_t &one,uint32_t &two)$/;"	f	class:RoomManager
+CreateRoom	RoomManager.hpp	/^        uint32_t CreateRoom(uint32_t &one,uint32_t &two)$/;"	f	class:RoomManager
 DEC	build/CMakeFiles/3.9.2/CompilerIdC/CMakeCCompilerId.c	453;"	d	file:
 DEC	build/CMakeFiles/3.9.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	438;"	d	file:
-DEFAULT_ID	PlayerManager.hpp	8;"	d
+DEFAULT_ID	PlayerManager.hpp	10;"	d
+DecMatchNum	Hall.hpp	/^        void DecMatchNum()$/;"	f	class:Hall
 EQUALS	build/Makefile	/^EQUALS = =$/;"	m
 FATAL	Log.hpp	9;"	d
 GamePrepare	Hall.hpp	/^        void GamePrepare(uint32_t &one,uint32_t &two)$/;"	f	class:Hall
+GameResult	Room.hpp	/^        char GameResult(uint32_t &id)$/;"	f	class:Room
 GetAllMatchId	Hall.hpp	/^        void GetAllMatchId(vector<uint32_t> &id_list)\/\/把匹配池中所有的id都放到id_list中$/;"	f	class:Hall
+GetBoard	RoomManager.hpp	/^        void GetBoard(uint32_t &room_id,string &_board)$/;"	f	class:RoomManager
 GetPasswd	Player.hpp	/^        const string& GetPasswd()$/;"	f	class:Player
+GetPlayerBoard	Hall.hpp	/^       string GetPlayerBoard(uint32_t &room_id)$/;"	f	class:Hall
+GetPlayerPiece	Hall.hpp	/^       char GetPlayerPiece(uint32_t &room_id,uint32_t &id)$/;"	f	class:Hall
+GetPlayerPiece	RoomManager.hpp	/^        char GetPlayerPiece(uint32_t &room_id,uint32_t &id)$/;"	f	class:RoomManager
+GetPlayerRoomId	Hall.hpp	/^       uint32_t GetPlayerRoomId(uint32_t &id)$/;"	f	class:Hall
+GetPlayerRoomId	PlayerManager.hpp	/^        uint32_t GetPlayerRoomId(uint32_t &id)$/;"	f	class:PlayerManager
 GetRate	PlayerManager.hpp	/^        int GetRate(uint32_t &id)$/;"	f	class:PlayerManager
 HEX	build/CMakeFiles/3.9.2/CompilerIdC/CMakeCCompilerId.c	464;"	d	file:
 HEX	build/CMakeFiles/3.9.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	449;"	d	file:
@@ -283,15 +292,23 @@ INFO	Log.hpp	7;"	d
 IncMatchNum	Hall.hpp	/^        void IncMatchNum()\/\/递增匹配个数$/;"	f	class:Hall
 InitHall	Hall.hpp	/^        void InitHall()\/\/初始化大厅$/;"	f	class:Hall
 InsertPlayer	PlayerManager.hpp	/^        uint32_t InsertPlayer(string &name,string &passwd)\/\/插入用户$/;"	f	class:PlayerManager
+IsMyTurn	Hall.hpp	/^       bool IsMyTurn(uint32_t &room_id,uint32_t &id)$/;"	f	class:Hall
+IsMyTurn	Room.hpp	/^        bool IsMyTurn(uint32_t &id)$/;"	f	class:Room
+IsMyTurn	RoomManager.hpp	/^        bool IsMyTurn(uint32_t &room_id,uint32_t &id)$/;"	f	class:RoomManager
 IsPlayerReady	Hall.hpp	/^        int IsPlayerReady(uint32_t &id)\/\/检测用户状态是否是ready$/;"	f	class:Hall
+Judge	Hall.hpp	/^       char Judge(uint32_t &room_id,uint32_t &id)$/;"	f	class:Hall
+Judge	Room.hpp	/^        char Judge()$/;"	f	class:Room
+Judge	RoomManager.hpp	/^        char Judge(uint32_t &room_id,uint32_t &id)$/;"	f	class:RoomManager
 LOG	Log.hpp	20;"	d
+Lock	PlayerManager.hpp	/^        void Lock()$/;"	f	class:PlayerManager
+Lock	RoomManager.hpp	/^        void Lock()$/;"	f	class:RoomManager
 LockMatchPool	Hall.hpp	/^        void LockMatchPool()\/\/给匹配池加锁$/;"	f	class:Hall
 Log	Log.hpp	/^void Log(int level,string message,string file,int line)$/;"	f
 Login	Hall.hpp	/^        uint32_t Login(uint32_t &id,string &passwd)$/;"	f	class:Hall
 MATCHING	Player.hpp	/^    MATCHING,\/\/匹配中$/;"	e	enum:__anon1
 MATCH_LEVEL	Hall.hpp	9;"	d
 MatchNum	Hall.hpp	/^        int MatchNum()$/;"	f	class:Hall
-MatchPoolClear	Hall.hpp	/^        void MatchPoolClear()\/\/清空匹配池$/;"	f	class:Hall
+MatchPoolClear	Hall.hpp	/^        void MatchPoolClear(uint32_t &id)\/\/清空匹配池$/;"	f	class:Hall
 MatchService	Hall.hpp	/^       static void *MatchService(void* arg)\/\/提供一个线程不断检测当前用户是否可以匹配$/;"	f	class:Hall
 Matching	Player.hpp	/^        void Matching()\/\/匹配$/;"	f	class:Player
 OFFLINE	Player.hpp	/^    OFFLINE = 0,\/\/离线$/;"	e	enum:__anon1
@@ -360,27 +377,38 @@ PLATFORM_ID	build/CMakeFiles/3.9.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	377;"	d	
 PLATFORM_ID	build/CMakeFiles/3.9.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	380;"	d	file:
 PLATFORM_ID	build/CMakeFiles/3.9.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	384;"	d	file:
 PLAYING	Player.hpp	/^    PLAYING,\/\/游戏中$/;"	e	enum:__anon1
+Piece	Room.hpp	/^        char Piece(uint32_t &id)$/;"	f	class:Room
 Player	Player.hpp	/^        Player()$/;"	f	class:Player
 Player	Player.hpp	/^        Player(string &_name,string &_passwd,uint32_t &_id)$/;"	f	class:Player
 Player	Player.hpp	/^class Player\/\/玩家用户$/;"	c
 PlayerManager	PlayerManager.hpp	/^        PlayerManager()$/;"	f	class:PlayerManager
 PlayerManager	PlayerManager.hpp	/^class PlayerManager$/;"	c
 Playing	Player.hpp	/^        void Playing()\/\/游戏中$/;"	f	class:Player
+PopIdMatchPool	Hall.hpp	/^        bool PopIdMatchPool(uint32_t &id)\/\/把自己的id从匹配池拿走$/;"	f	class:Hall
 PushIdInMatchPool	Hall.hpp	/^        bool PushIdInMatchPool(uint32_t& id)\/\/把用户id放入匹配池中$/;"	f	class:Hall
 RM	build/Makefile	/^RM = \/usr\/local\/bin\/cmake -E remove -f$/;"	m
-ROOM_ID	RoomManager.hpp	6;"	d
+ROOM_ID	RoomManager.hpp	7;"	d
 Rate	Player.hpp	/^       int Rate()\/\/胜率$/;"	f	class:Player
 Ready	PlayerManager.hpp	/^       int Ready(uint32_t &id)\/\/判断用户是否匹配成功$/;"	f	class:PlayerManager
 Register	Hall.hpp	/^        uint32_t Register(string &name,string &passwd)$/;"	f	class:Hall
 ResetMatchNum	Hall.hpp	/^        void ResetMatchNum()\/\/重置匹配个数$/;"	f	class:Hall
+Room	Player.hpp	/^       uint32_t Room()$/;"	f	class:Player
+Room	Room.hpp	/^        Room()$/;"	f	class:Room
 Room	Room.hpp	/^        Room(uint32_t &id1,uint32_t &id2)$/;"	f	class:Room
 Room	Room.hpp	/^class Room$/;"	c
 RoomManager	RoomManager.hpp	/^        RoomManager()$/;"	f	class:RoomManager
 RoomManager	RoomManager.hpp	/^class RoomManager$/;"	c
+RpcBoard	main.cpp	/^string RpcBoard(connection* conn,uint32_t room_id)\/\/5.获得棋盘$/;"	f
+RpcIsMyTurn	main.cpp	/^bool RpcIsMyTurn(connection* conn,uint32_t room_id,uint32_t id)\/\/6.玩游戏时，判断是否该自己走$/;"	f
+RpcJudge	main.cpp	/^char RpcJudge(connection* conn,uint32_t room_id,uint32_t id)\/\/7.判定输赢(判定特定房间里的特定用户是否赢)$/;"	f
 RpcLogin	main.cpp	/^uint32_t RpcLogin(connection* conn,uint32_t id,string passwd)$/;"	f
-RpcMatchAndWait	main.cpp	/^bool RpcMatchAndWait(connection* conn,uint32_t id)$/;"	f
-RpcPlayerReady	main.cpp	/^int RpcPlayerReady(connection* conn,uint32_t id)$/;"	f
+RpcMatchAndWait	main.cpp	/^bool RpcMatchAndWait(connection* conn,uint32_t id)\/\/1.把自己的id放入匹配池并等待匹配$/;"	f
+RpcPlayerPiece	main.cpp	/^char RpcPlayerPiece(connection* conn ,uint32_t room_id,uint32_t id)\/\/4.获得自己的棋子$/;"	f
+RpcPlayerReady	main.cpp	/^int RpcPlayerReady(connection* conn,uint32_t id)\/\/2.用户检查自己是否匹配成功$/;"	f
+RpcPlayerRoomId	main.cpp	/^uint32_t RpcPlayerRoomId(connection* conn ,uint32_t id)\/\/3.获得对应的房间号$/;"	f
+RpcPopMatchPool	main.cpp	/^bool RpcPopMatchPool(connection* conn,uint32_t id)\/\/8.把自己的id从匹配池拿走$/;"	f
 RpcRegister	main.cpp	/^uint32_t RpcRegister(connection* conn,string name,string passwd)$/;"	f
+RpcStep	main.cpp	/^void RpcStep(connection* conn,uint32_t room_id,uint32_t id,int x,int y)\/\/6.用户开始下棋(也就是把特定的下标设置为对应的棋子即可)$/;"	f
 SHELL	build/Makefile	/^SHELL = \/bin\/sh$/;"	m
 SIMULATE_ID	build/CMakeFiles/3.9.2/CompilerIdC/CMakeCCompilerId.c	163;"	d	file:
 SIMULATE_ID	build/CMakeFiles/3.9.2/CompilerIdC/CMakeCCompilerId.c	178;"	d	file:
@@ -410,9 +438,17 @@ SearchPlayer	PlayerManager.hpp	/^        uint32_t SearchPlayer(uint32_t id,strin
 ServiceWait	Hall.hpp	/^        void ServiceWait()\/\/匹配服务线程等待$/;"	f	class:Hall
 ServiceWakeup	Hall.hpp	/^        void ServiceWakeup()\/\/唤醒服务线程$/;"	f	class:Hall
 SetMatching	PlayerManager.hpp	/^       void SetMatching(uint32_t &id)$/;"	f	class:PlayerManager
+SetOnline	PlayerManager.hpp	/^       void SetOnline(uint32_t &id)$/;"	f	class:PlayerManager
+SetPlayerRoom	PlayerManager.hpp	/^       void SetPlayerRoom(uint32_t &room_id,uint32_t &one,uint32_t &two)$/;"	f	class:PlayerManager
 SetPlayerStatus	PlayerManager.hpp	/^       void SetPlayerStatus(uint32_t &one,uint32_t &two)$/;"	f	class:PlayerManager
+SetRoom	Player.hpp	/^       void SetRoom(uint32_t &_room_id)$/;"	f	class:Player
 Status	Player.hpp	/^        int Status()$/;"	f	class:Player
+Step	Hall.hpp	/^       void Step(uint32_t &room_id,uint32_t &id,int x,int y)$/;"	f	class:Hall
+Step	Room.hpp	/^        void Step(uint32_t &id,int &x,int &y)$/;"	f	class:Room
+Step	RoomManager.hpp	/^        void Step(uint32_t &room_id,uint32_t &id,int &x,int &y)$/;"	f	class:RoomManager
 TIMEOUT	Player.hpp	7;"	d
+Unlock	PlayerManager.hpp	/^        void Unlock()$/;"	f	class:PlayerManager
+Unlock	RoomManager.hpp	/^        void Unlock()$/;"	f	class:RoomManager
 UnlockMatchPool	Hall.hpp	/^        void UnlockMatchPool()\/\/给匹配池解锁$/;"	f	class:Hall
 WARNING	Log.hpp	8;"	d
 WHITE	Room.hpp	9;"	d
@@ -440,7 +476,9 @@ info_simulate_version	build/CMakeFiles/3.9.2/CompilerIdC/CMakeCCompilerId.c	/^ch
 info_simulate_version	build/CMakeFiles/3.9.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	/^char const info_simulate_version[] = {$/;"	v
 info_version	build/CMakeFiles/3.9.2/CompilerIdC/CMakeCCompilerId.c	/^char const info_version[] = {$/;"	v
 info_version	build/CMakeFiles/3.9.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	/^char const info_version[] = {$/;"	v
+lock	PlayerManager.hpp	/^        pthread_mutex_t lock;$/;"	m	class:PlayerManager
 lock	Room.hpp	/^        pthread_mutex_t lock;\/\/定义一把锁$/;"	m	class:Room
+lock	RoomManager.hpp	/^        pthread_mutex_t lock;$/;"	m	class:RoomManager
 lose	Player.hpp	/^        int lose;\/\/输的次数$/;"	m	class:Player
 main	build/CMakeFiles/3.9.2/CompilerIdC/CMakeCCompilerId.c	/^int main(argc, argv) int argc; char *argv[];$/;"	f
 main	build/CMakeFiles/3.9.2/CompilerIdC/CMakeCCompilerId.c	/^void main() {}$/;"	f
@@ -462,6 +500,7 @@ qnxnto	build/CMakeFiles/3.9.2/CompilerIdC/CMakeCCompilerId.c	/^char const* qnxnt
 qnxnto	build/CMakeFiles/3.9.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	/^char const* qnxnto = "INFO" ":" "qnxnto[]";$/;"	v
 result	Room.hpp	/^        char result;\/\/  X(one用户赢), O(two用户赢), E(平局),N(继续)$/;"	m	class:Room
 rm	Hall.hpp	/^        RoomManager rm;$/;"	m	class:Hall
+room_id	Player.hpp	/^        uint32_t room_id;\/\/房间号$/;"	m	class:Player
 room_set	RoomManager.hpp	/^        unordered_map<uint32_t,Room> room_set;$/;"	m	class:RoomManager
 st	Player.hpp	/^        status_t st;\/\/状态$/;"	m	class:Player
 status_t	Player.hpp	/^}status_t;$/;"	t	typeref:enum:__anon1

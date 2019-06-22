@@ -68,6 +68,16 @@ class Player//玩家用户
            return win*100/total;//取值范围是0-100
        }
 
+       uint32_t Room()
+       {
+           return room_id;
+       }
+
+       void SetRoom(uint32_t &_room_id)
+       {
+           room_id = _room_id;
+       }
+
       // int Wait()//等待
       // {
       //    struct timespec ts;
@@ -99,6 +109,7 @@ class Player//玩家用户
         int tie;//平局的次数
 
         status_t st;//状态
+        uint32_t room_id;//房间号
 
         //pthread_mutex_t lock;//一把锁
         //pthread_cond_t cond;//条件变量

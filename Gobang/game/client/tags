@@ -268,9 +268,14 @@ DEC	build/CMakeFiles/3.9.2/CompilerIdC/CMakeCCompilerId.c	453;"	d	file:
 DEC	build/CMakeFiles/3.9.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	438;"	d	file:
 EQUALS	build/Makefile	/^EQUALS = =$/;"	m
 Game	game.hpp	/^void Game(string &ip,int &port,uint32_t &id)$/;"	f
+GetBoard	game.hpp	/^int GetBoard(string &ip,int &port,uint32_t &room_id,string &board)$/;"	f
+GetMyPiece	game.hpp	/^char GetMyPiece(string &ip,int &port,uint32_t room_id,uint32_t id)$/;"	f
+GetMyRoomId	game.hpp	/^uint32_t GetMyRoomId(string &ip,int &port, uint32_t &id)$/;"	f
 HEX	build/CMakeFiles/3.9.2/CompilerIdC/CMakeCCompilerId.c	464;"	d	file:
 HEX	build/CMakeFiles/3.9.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	449;"	d	file:
 ID_VOID_MAIN	build/CMakeFiles/3.9.2/CompilerIdC/CMakeCCompilerId.c	6;"	d	file:
+IsMyTurn	game.hpp	/^bool IsMyTurn(string &ip,int &port,uint32_t &room_id,uint32_t &id)$/;"	f
+Judge	game.hpp	/^char Judge(string &ip,int &port,uint32_t room_id,uint32_t &id)$/;"	f
 Login	game.hpp	/^uint32_t Login(const string &ip,const int &port)$/;"	f
 LoginMenu	main.cpp	/^static void LoginMenu()$/;"	f	file:
 Match	game.hpp	/^bool Match(string &ip,int &port,uint32_t &id)$/;"	f
@@ -336,7 +341,9 @@ PLATFORM_ID	build/CMakeFiles/3.9.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	374;"	d	
 PLATFORM_ID	build/CMakeFiles/3.9.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	377;"	d	file:
 PLATFORM_ID	build/CMakeFiles/3.9.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	380;"	d	file:
 PLATFORM_ID	build/CMakeFiles/3.9.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	384;"	d	file:
-PlayGame	game.hpp	/^void PlayGame()$/;"	f
+PlayGame	game.hpp	/^void PlayGame(string &ip,int &port, uint32_t &id)$/;"	f
+PopMatchPool	game.hpp	/^bool PopMatchPool(string &ip,int &port,uint32_t &id)$/;"	f
+PosIsRight	game.hpp	/^bool PosIsRight(string &board,int x,int y)$/;"	f
 PushMatchPool	game.hpp	/^bool PushMatchPool(string &ip,int &port,uint32_t &id)$/;"	f
 RM	build/Makefile	/^RM = \/usr\/local\/bin\/cmake -E remove -f$/;"	m
 Register	game.hpp	/^uint32_t Register(const string &ip,const int &port,string &name,string &passwd,uint32_t &id)$/;"	f
@@ -364,6 +371,8 @@ STRINGIFY	build/CMakeFiles/3.9.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	288;"	d	fi
 STRINGIFY_HELPER	build/CMakeFiles/3.9.2/CompilerIdC/CMakeCCompilerId.c	302;"	d	file:
 STRINGIFY_HELPER	build/CMakeFiles/3.9.2/CompilerIdCXX/CMakeCXXCompilerId.cpp	287;"	d	file:
 SUFFIXES	build/Makefile	/^SUFFIXES =$/;"	m
+ShowBoard	game.hpp	/^void ShowBoard(string &board)\/\/显示棋盘$/;"	f
+Step	game.hpp	/^int Step(string &ip,int &port,uint32_t &room_id,uint32_t &id,int x,int y)$/;"	f
 Usage	main.cpp	/^static void Usage(string proc)$/;"	f	file:
 const	build/CMakeFiles/3.9.2/CompilerIdC/CMakeCCompilerId.c	10;"	d	file:
 features	build/CMakeFiles/feature_tests.c	/^  const char features[] = {"\\n"$/;"	v

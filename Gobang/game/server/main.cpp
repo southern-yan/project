@@ -6,6 +6,7 @@ using namespace rest_rpc;
 using namespace rpc_service;
 using namespace std;
 
+    //GameHall.InitHall();//初始化大厅
 //#include "qps.h"
 //
 //struct dummy{
@@ -83,27 +84,70 @@ uint32_t RpcLogin(connection* conn,uint32_t id,string passwd)
     return GameHall.Login(id,passwd);
 }
 
-bool RpcMatchAndWait(connection* conn,uint32_t id)
+bool RpcMatchAndWait(connection* conn,uint32_t id)//1.把自己的id放入匹配池并等待匹配
 {
     return GameHall.PushIdInMatchPool(id);
 }
 
-int RpcPlayerReady(connection* conn,uint32_t id)
+int RpcPlayerReady(connection* conn,uint32_t id)//2.用户检查自己是否匹配成功
 {
     return GameHall.IsPlayerReady(id);
+}
+
+string RpcBoard(connection* conn,uint32_t room_id)//5.获得棋盘
+{
+   return GameHall.GetPlayerBoard(room_id);
+}
+
+uint32_t RpcPlayerRoomId(connection* conn ,uint32_t id)//3.获得对应的房间号
+{
+    return GameHall.GetPlayerRoomId(id);
+}
+
+char RpcPlayerPiece(connection* conn ,uint32_t room_id,uint32_t id)//4.获得自己的棋子
+{
+    return GameHall.GetPlayerPiece(room_id,id);
+}
+
+bool RpcIsMyTurn(connection* conn,uint32_t room_id,uint32_t id)//6.玩游戏时，判断是否该自己走
+{
+    return GameHall.IsMyTurn(room_id,id);
+}
+
+void RpcStep(connection* conn,uint32_t room_id,uint32_t id,int x,int y)//6.用户开始下棋(也就是把特定的下标设置为对应的棋子即可)
+{
+     GameHall.Step(room_id,id,x,y);
+}
+
+char RpcJudge(connection* conn,uint32_t room_id,uint32_t id)//7.判定输赢(判定特定房间里的特定用户是否赢)
+{
+    return GameHall.Judge(room_id,id);
+}
+
+bool RpcPopMatchPool(connection* conn,uint32_t id)//8.把自己的id从匹配池拿走
+{
+    return GameHall.PopIdMatchPool(id);
 }
 
 int main() {
 	rpc_server server(9001,4);
     LOG(INFO,"初始化服务器成功...");
     server.register_handler("RpcRegister",RpcRegister);//把注册方法注册进来
-    server.register_handler("RpcLogin",RpcLogin);//把登录方法注册进来
-    server.register_handler("RpcMatchAndWait",RpcMatchAndWait);//把匹配并等待方法注册进来
-    server.register_handler("RpcPlayerReady",RpcPlayerReady);//
-    GameHall.InitHall();//初始化大厅
+    server.register_handler("RpcLogin",RpcLogin);//登录
+    server.register_handler("RpcMatchAndWait",RpcMatchAndWait);//匹配并等待
+    server.register_handler("RpcPlayerReady",RpcPlayerReady);//检测用户是否已经就绪(就绪是指用户已经准备好开始游戏了)
+    server.register_handler("RpcPlayerRoomId",RpcPlayerRoomId);//获得房间号
+    server.register_handler("RpcPlayerPiece",RpcPlayerPiece);//获得棋盘的棋子
+    server.register_handler("RpcBoard",RpcBoard);//获得棋盘
+    server.register_handler("RpcIsMyTurn",RpcIsMyTurn);//是否该我走
+    server.register_handler("RpcStep",RpcStep);//玩家下棋
+    server.register_handler("RpcJudge",RpcJudge);//判断输赢
+    server.register_handler("RpcPopMatchPool",RpcPopMatchPool);//把自己的id从匹配池拿走
 
     LOG(INFO,"所有方法注册完毕...");
     LOG(INFO,"服务器开始启动...");
+
+    GameHall.InitHall();//初始化大厅
 	//dummy d;
 	//server.register_handler("add", &dummy::add, &d);
 	//server.register_handler("translate", translate);

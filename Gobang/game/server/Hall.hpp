@@ -28,6 +28,11 @@ class Hall
             match_num++;
         }
 
+        void DecMatchNum()
+        {
+            match_num--;
+        }
+
         void ResetMatchNum()//重置匹配个数
         {
             match_num=0;
@@ -46,9 +51,10 @@ class Hall
                    while(it!=v.end())
                    {
                        id_list.push_back(*it);
+                       it++;
                    }
                }
-        }  
+        }
 
         void LockMatchPool()//给匹配池加锁
         {
@@ -106,7 +112,27 @@ class Hall
           // return  pm.PlayerWait(id);//让用户进行等待
         }
 
-        void MatchPoolClear()//清空匹配池
+        bool PopIdMatchPool(uint32_t &id)//把自己的id从匹配池拿走
+        {
+            LockMatchPool();
+           // MatchPoolClear(id);
+            int rate = pm.GetRate(id);//获得自己的胜率
+            auto &v=match_pool[rate];//找到匹配池中对应的级别
+            for(auto it = v.begin();it!=v.end();it++)//删掉用户自己的id
+            {
+                if(*it == id)
+                {
+                    v.erase(it);
+                    break;
+                }
+            }
+            DecMatchNum();//匹配池的个数减1
+            UnlockMatchPool();
+            pm.SetOnline(id);
+            return true;
+        }
+
+        void MatchPoolClear(uint32_t &id)//清空匹配池
         {
             LOG(INFO,"匹配池被清空...");
             for(int i = MATCH_LEVEL-1;i >= 0;i--)
@@ -119,6 +145,10 @@ class Hall
                 vector<uint32_t>().swap(v);
             }
             ResetMatchNum();//清空所有id
+            if(id>=1000)
+            {
+                pm.SetOnline(id);
+            }
         }
 
         int IsPlayerReady(uint32_t &id)//检测用户状态是否是ready
@@ -129,7 +159,9 @@ class Hall
         void GamePrepare(uint32_t &one,uint32_t &two)
         {
             pm.SetPlayerStatus(one,two);//设置玩家游戏状态
-            rm.CreateRoom(one,two);//创建房间
+            uint32_t room_id = rm.CreateRoom(one,two);//创建房间
+            pm.SetPlayerRoom(room_id,one,two);//设置玩家的房间号
+            cout<< "debug: room_id: "<<room_id <<endl;
             //pm.SignalPlayer(one,two);//唤醒两个用户
         }
 
@@ -139,6 +171,7 @@ class Hall
             Hall *hp=(Hall*)arg;
             while(1)
             {
+                uint32_t last = 0;
                  hp->LockMatchPool();//加锁
                  while(hp->MatchNum() < 2)//循环检测(防止误唤醒)
                  {
@@ -150,18 +183,59 @@ class Hall
                  hp->GetAllMatchId(id_list);
                  //两两开始匹配
                  int num=id_list.size();
-                 num &=(~1);//保证num为偶数
+                 if(num & 1)
+                 {
+                     last = id_list[id_list.size()-1];
+                     num &=(~1);//保证num为偶数
+                 }
+                 else
+                 {
+                     last = 0;
+                 }
                  for(int i = 0;i <= num;i+=2)
                  {
                      uint32_t play_one = id_list[i];
                      uint32_t play_two = id_list[i+1];
-                     hp->GamePrepare(play_one,play_two);
+                     hp->GamePrepare(play_one,play_two);//游戏准备
                  }
                  //匹配完毕后，要清空匹配池
-                 hp->MatchPoolClear();
+                 hp->MatchPoolClear(last);//清空当前匹配池内容
                  hp->UnlockMatchPool();//解锁
             }
-        }   
+        }
+
+       string GetPlayerBoard(uint32_t &room_id)
+       {
+           string board;
+           //uint32_t room_id=pm.GetPlayerRoomId(id);
+           rm.GetBoard(room_id,board);
+           return board;
+       }
+
+       uint32_t GetPlayerRoomId(uint32_t &id)
+       {
+          return pm.GetPlayerRoomId(id);
+       }
+
+       char GetPlayerPiece(uint32_t &room_id,uint32_t &id)
+       {
+           return rm.GetPlayerPiece(room_id,id);
+       }
+
+       bool IsMyTurn(uint32_t &room_id,uint32_t &id)
+       {
+           return rm.IsMyTurn(room_id,id);
+       }
+
+       void Step(uint32_t &room_id,uint32_t &id,int x,int y)
+       {
+           rm.Step(room_id,id,x,y);
+       }
+
+       char Judge(uint32_t &room_id,uint32_t &id)
+       {
+           return rm.Judge(room_id,id);
+       }
 
         void InitHall()//初始化大厅
         {
