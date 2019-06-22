@@ -124,8 +124,9 @@ bool PopMatchPool(string &ip,int &port,uint32_t &id)
 
       return client.call<bool>("RpcPopMatchPool",id);
 	}
-	catch (const std::exception& e) {
-	std::cout << e.what() << std::endl;
+	catch (const std::exception& e)
+    {
+	    std::cout << e.what() << std::endl;
     }
     return false;
 }
